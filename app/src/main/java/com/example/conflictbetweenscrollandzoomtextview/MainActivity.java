@@ -2,7 +2,7 @@ package com.example.conflictbetweenscrollandzoomtextview;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.graphics.Point;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements View.OnTouchListener {
+public class MainActivity extends AppCompatActivity  {
     private TextView textView;
     private ScrollView scrollView;
     final static float STEP = 200;
@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     float mBaseRatio;
     float fontsize = 13;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,39 +40,24 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                 }
                 if(event.getPointerCount() == 2){
                     Log.d("Zoom","2-pointer touch");
+                    int action = event.getAction();
+                    int mainaction = action&MotionEvent.ACTION_MASK;
+                    if (mainaction == MotionEvent.ACTION_POINTER_DOWN){
+                        mBaseDist = getDistance(event);
+                        mBaseRatio = mRatio;
+                    }else {
+                        float scale = (getDistance(event)- mBaseDist)/STEP;
+                        float factor = (float) Math.pow(2,scale);
+                        mRatio = Math.min(1024.0f,Math.max(0.1f,mBaseRatio*factor));
+                        textView.setTextSize(mRatio+15);
+                    }
                     v.getParent().requestDisallowInterceptTouchEvent(true);
 
                 }
-                return false;
+                return true;
             }
         });
 
-
-    }
-
-
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        return false;
-    }
-
-
-    public boolean onTouchEvent (MotionEvent event){
-        if (event.getPointerCount() == 2){
-            int action = event.getAction();
-            int mainaction = action&MotionEvent.ACTION_MASK;
-            if (mainaction == MotionEvent.ACTION_POINTER_DOWN){
-                mBaseDist = getDistance(event);
-                mBaseRatio = mRatio;
-            }else {
-                float scale = (getDistance(event)- mBaseDist)/STEP;
-                float factor = (float) Math.pow(2,scale);
-                mRatio = Math.min(1024.0f,Math.max(0.1f,mBaseRatio*factor));
-                textView.setTextSize(mRatio+15);
-            }
-        }
-        return true;
     }
 
     private int getDistance(MotionEvent event) {
