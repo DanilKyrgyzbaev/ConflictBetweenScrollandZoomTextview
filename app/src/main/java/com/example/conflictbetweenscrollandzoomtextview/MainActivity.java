@@ -2,7 +2,9 @@ package com.example.conflictbetweenscrollandzoomtextview;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Point;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ScrollView;
@@ -26,13 +28,35 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         textView.setTextSize(mRatio + 15);
         scrollView = findViewById(R.id.scrollView);
 
+        textView.setOnTouchListener(new View.OnTouchListener() {
+
+            public boolean onTouch(View v, MotionEvent event) {
+                // TODO Auto-generated method stub
+                if(event.getPointerCount() == 1) {
+                    Log.d("Scroll","1-pointer touch");
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
+
+                }
+                if(event.getPointerCount() == 2){
+                    Log.d("Zoom","2-pointer touch");
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+
+                }
+                return false;
+            }
+        });
+
 
     }
+
+
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         return false;
     }
+
+
     public boolean onTouchEvent (MotionEvent event){
         if (event.getPointerCount() == 2){
             int action = event.getAction();
